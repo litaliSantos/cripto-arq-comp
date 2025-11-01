@@ -26,4 +26,3 @@ class ngram_score(object):
             if text[i:i+self.L] in self.ngrams: score += ngrams(text[i:i+self.L])
             else: score += self.floor          
         return score
-       

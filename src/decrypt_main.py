@@ -6,7 +6,6 @@ from utils import (
     binary_to_ascii,
     clean_text_for_ciphers,
     save_text_to_file,
-    break_caesar,
     break_substitution
 )
 
