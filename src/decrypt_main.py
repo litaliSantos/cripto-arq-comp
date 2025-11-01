@@ -2,7 +2,6 @@ import os
 import time
 
 # --- Módulos de Criptografia ---
-# Importações ajustadas (absolutas)
 from ngram_score import ngram_score 
 from utils import (
     binary_to_ascii,
@@ -13,11 +12,12 @@ from utils import (
 )
 
 # --- Definição dos Caminhos de Arquivo ---
-# O caminho é relativo ao diretório raiz do repositório
 DATA_FOLDER = 'data'
 BIN_FILE_PATH = os.path.join(DATA_FOLDER, 'encrypted_message.txt')
 NGRAM_FILE_PATH = os.path.join(DATA_FOLDER, 'quadgrams.txt')
-ASCII_OUTPUT_FILE = os.path.join(DATA_FOLDER, 'raw_ascii_output.txt') # Arquivo de saída
+ASCII_OUTPUT_FILE = os.path.join(DATA_FOLDER, 'raw_ascii_output.txt') 
+CAESAR_OUTPUT_FILE = os.path.join(DATA_FOLDER, 'decrypted_caesar.txt')       # NOVO: Saída César
+SUBSTITUTION_OUTPUT_FILE = os.path.join(DATA_FOLDER, 'decrypted_substitution.txt') # NOVO: Saída Substituição
 
 
 def initialize_tools():
@@ -27,15 +27,13 @@ def initialize_tools():
     """
     print("--- 1. Conversão e Inicialização ---")
     
-    # TAREFA 1: Ler e Converter a Mensagem Binária (para texto ASCII bruto)
     raw_ascii_text = binary_to_ascii(BIN_FILE_PATH)
     
     if raw_ascii_text.startswith("Erro"):
         print(raw_ascii_text)
         return None, None
     
-    # ----------------------------------------------------
-    # NOVO: Salva o texto bruto (com espaços e pontuações) em um arquivo
+    # Salva o texto bruto (com espaços e pontuações)
     if save_text_to_file(raw_ascii_text, ASCII_OUTPUT_FILE):
         print(f"Texto ASCII bruto (com símbolos) salvo em: {ASCII_OUTPUT_FILE}")
     else:
@@ -43,7 +41,7 @@ def initialize_tools():
 
     print(f"Mensagem Binária convertida (Primeiros 50 chars):\n{raw_ascii_text[:50]}...")
     
-    # 1.3. Limpar o texto, deixando apenas letras MAIÚSCULAS para a criptoanálise
+    # Limpa o texto, deixando apenas letras MAIÚSCULAS
     encrypted_text_clean = clean_text_for_ciphers(raw_ascii_text)
     print(f"Mensagem LIMPA e Pronta (Primeiros 50 chars):\n{encrypted_text_clean[:50]}...")
     print(f"Comprimento da mensagem para a cifra: {len(encrypted_text_clean)} caracteres.")
@@ -69,22 +67,29 @@ def main():
         print("\nO projeto não pode continuar sem o scorer de N-gramas.")
         return
 
-    # --- 2. QUEBRA DA CIFRA DE CÉSAR (PLACEHOLDER) ---
+    # --- 2. QUEBRA DA CIFRA DE CÉSAR (FORÇA BRUTA) ---
     print("\n--- 2. Quebra da Cifra de César (Força Bruta) ---")
     
-    # Chamada da função placeholder:
     best_shift, decrypted_caesar_text, best_score = break_caesar(encrypted_text, scorer)
 
-    print(f"Mensagem Descriptografada (César):\n{decrypted_caesar_text}")
-    
-    
+    print(f"Chave Encontrada (Shift): {best_shift}")
+    print(f"Score de N-Gramas: {best_score:.2f}")
+
+    # Salva o texto descriptografado de César
+    if save_text_to_file(decrypted_caesar_text, CAESAR_OUTPUT_FILE):
+        print(f"Mensagem de César SALVA em: {CAESAR_OUTPUT_FILE}")
+
     # --- 3. QUEBRA DA CIFRA DE SUBSTITUIÇÃO (PLACEHOLDER) ---
     print("\n--- 3. Quebra da Cifra de Substituição (Heurística de N-Gramas) ---")
     
-    # Chamada da função placeholder:
     best_key, decrypted_substitution_text, best_score_sub = break_substitution(encrypted_text, scorer)
 
-    print(f"Mensagem Descriptografada (Substituição):\n{decrypted_substitution_text}")
+    print(f"Chave Encontrada (Mapa de Substituição):\n{best_key}")
+    print(f"Score de N-Gramas: {best_score_sub:.2f}")
+    
+    # Salva o texto descriptografado de Substituição
+    if save_text_to_file(decrypted_substitution_text, SUBSTITUTION_OUTPUT_FILE):
+        print(f"Mensagem de Substituição SALVA em: {SUBSTITUTION_OUTPUT_FILE}")
     
     
     end_time = time.time()
