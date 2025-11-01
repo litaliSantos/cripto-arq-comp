@@ -1,7 +1,6 @@
 import os
 import time
 
-# --- Módulos de Criptografia ---
 from ngram_score import ngram_score
 from utils import (
     binary_to_ascii,
@@ -11,7 +10,6 @@ from utils import (
     break_substitution
 )
 
-# Tenta importar wordninja para segmentação de palavras
 try:
     import wordninja
     _WORDNINJA_OK = True
@@ -19,13 +17,11 @@ except Exception as _e:
     _WORDNINJA_OK = False
     _WORDNINJA_ERR = _e
 
-# --- Definição dos Caminhos de Arquivo ---
 DATA_FOLDER = 'data'
 BIN_FILE_PATH = os.path.join(DATA_FOLDER, 'encrypted_message.txt')
 NGRAM_FILE_PATH = os.path.join(DATA_FOLDER, 'quadgrams.txt')
 ASCII_OUTPUT_FILE = os.path.join(DATA_FOLDER, 'raw_ascii_output.txt')
-CAESAR_OUTPUT_FILE = os.path.join(DATA_FOLDER, 'decrypted_caesar.txt')       # NOVO: Saída César
-SUBSTITUTION_OUTPUT_FILE = os.path.join(DATA_FOLDER, 'decrypted_substitution.txt') # NOVO: Saída Substituição
+SUBSTITUTION_OUTPUT_FILE = os.path.join(DATA_FOLDER, 'decrypted_substitution.txt')
 
 
 def initialize_tools():
@@ -46,12 +42,11 @@ def initialize_tools():
         print(f"Texto ASCII bruto (com símbolos) salvo em: {ASCII_OUTPUT_FILE}")
     else:
         print("Falha ao salvar o arquivo ASCII bruto. Continuando...")
-
-    print(f"Mensagem Binária convertida (Primeiros 50 chars):\n{raw_ascii_text[:50]}...")
+        return None, None
     
     # Limpa o texto, deixando apenas letras MAIÚSCULAS
     encrypted_text_clean = clean_text_for_ciphers(raw_ascii_text)
-    print(f"Mensagem LIMPA e Pronta (Primeiros 50 chars):\n{encrypted_text_clean[:50]}...")
+    print(f"Mensagem LIMPA e Pronta")
     print(f"Comprimento da mensagem para a cifra: {len(encrypted_text_clean)} caracteres.")
     
     # 2. Inicializa a Classe de Pontuação (Scorer)
@@ -75,27 +70,14 @@ def main():
         print("\nO projeto não pode continuar sem o scorer de N-gramas.")
         return
 
-    # --- 2. QUEBRA DA CIFRA DE CÉSAR (FORÇA BRUTA) ---
-    print("\n--- 2. Quebra da Cifra de César (Força Bruta) ---")
-    
-    best_shift, decrypted_caesar_text, best_score = break_caesar(encrypted_text, scorer)
-
-    print(f"Chave Encontrada (Shift): {best_shift}")
-    print(f"Score de N-Gramas: {best_score:.2f}")
-
-    # Salva o texto descriptografado de César
-    if save_text_to_file(decrypted_caesar_text, CAESAR_OUTPUT_FILE):
-        print(f"Mensagem de César SALVA em: {CAESAR_OUTPUT_FILE}")
-
-    # --- 3. QUEBRA DA CIFRA DE SUBSTITUIÇÃO (Heurística de N-Gramas) ---
-    print("\n--- 3. Quebra da Cifra de Substituição (Heurística de N-Gramas) ---")
+    print("\n--- 2. Quebra da Cifra de Substituição (Heurística de N-Gramas) ---")
     
     best_key, decrypted_substitution_text, best_score_sub = break_substitution(encrypted_text, scorer)
 
     print(f"Chave Encontrada (Mapa de Substituição):\n{best_key}")
     print(f"Score de N-Gramas: {best_score_sub:.2f}")
     
-    # >>> Inserção de espaços com wordninja ANTES de salvar <<<
+    # >>> Inserção de espaços com wordninja antes de salvar <<<
     if _WORDNINJA_OK:
         spaced_substitution_text = " ".join(wordninja.split(decrypted_substitution_text))
     else:
@@ -108,7 +90,7 @@ def main():
             f"Erro original do import: {_WORDNINJA_ERR}\n"
         )
 
-    # Salva o texto descriptografado de Substituição (com espaços se possível)
+    # Salva o texto descriptografado de Substituição
     if save_text_to_file(spaced_substitution_text, SUBSTITUTION_OUTPUT_FILE):
         print(f"Mensagem de Substituição SALVA em: {SUBSTITUTION_OUTPUT_FILE}")
     
