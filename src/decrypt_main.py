@@ -31,21 +31,24 @@ def initialize_tools():
     print("--- 1. Conversão e Inicialização ---")
     
     raw_ascii_text = binary_to_ascii(BIN_FILE_PATH)
-    
+
+    print("\n--- Texto ASCII (resultado da conversão binário → ASCII) ---")
+    print(raw_ascii_text)
+
     if raw_ascii_text.startswith("Erro"):
         print(raw_ascii_text)
         return None, None
     
     # Salva o texto bruto (com espaços e pontuações)
     if save_text_to_file(raw_ascii_text, ASCII_OUTPUT_FILE):
-        print(f"Texto ASCII bruto (com símbolos) salvo em: {ASCII_OUTPUT_FILE}")
+        print(f"\nTexto ASCII bruto (com símbolos) salvo em: {ASCII_OUTPUT_FILE}")
     else:
         print("Falha ao salvar o arquivo ASCII bruto. Continuando...")
         return None, None
     
     # Limpa o texto, deixando apenas letras MAIÚSCULAS
     encrypted_text_clean = clean_text_for_ciphers(raw_ascii_text)
-    print(f"Mensagem LIMPA e Pronta")
+    print("\nMensagem LIMPA e Pronta")
     print(f"Comprimento da mensagem para a cifra: {len(encrypted_text_clean)} caracteres.")
     
     # 2. Inicializa a Classe de Pontuação (Scorer)
@@ -76,9 +79,9 @@ def main():
     print(f"Chave Encontrada (Mapa de Substituição):\n{best_key}")
     print(f"Score de N-Gramas: {best_score_sub:.2f}")
     
-    # >>> Inserção de espaços com wordninja antes de salvar <<<
+    # Inserção de espaços com wordninja antes de salvar
     if _WORDNINJA_OK:
-        spaced_substitution_text = " ".join(wordninja.split(decrypted_substitution_text))
+        spaced_substitution_text = ' '.join(wordninja.split(decrypted_substitution_text))
     else:
         spaced_substitution_text = decrypted_substitution_text
         print(
@@ -88,6 +91,9 @@ def main():
             "    pip install wordninja\n"
             f"Erro original do import: {_WORDNINJA_ERR}\n"
         )
+
+    print("\n--- Mensagem Decriptografada FINAL ---")
+    print(spaced_substitution_text)
 
     # Salva o texto descriptografado de Substituição
     if save_text_to_file(spaced_substitution_text, SUBSTITUTION_OUTPUT_FILE):
